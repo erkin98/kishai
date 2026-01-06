@@ -53,12 +53,47 @@ Enterprise-grade platform for deploying and managing custom-trained LLMs with hi
 
 ## Quick Start
 
+### 📚 Documentation
+
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - ⭐ One-page command reference
+- **[GETTING_STARTED.md](./GETTING_STARTED.md)** - First time setup guide
+- **[LOCAL_DEV.md](./LOCAL_DEV.md)** - Complete development guide  
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute
+- **[DEV_TOOLS_OVERVIEW.md](./DEV_TOOLS_OVERVIEW.md)** - Visual tools overview
+- **[DEV_SETUP_SUMMARY.md](./DEV_SETUP_SUMMARY.md)** - What was added to the project
+- **[API_EXAMPLES.md](./API_EXAMPLES.md)** - API usage examples
+- **[CHANGES.md](./CHANGES.md)** - Complete list of changes
+
 ### Prerequisites
 
+#### For Local Development (Recommended)
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv) (fast package manager)
+- [just](https://just.systems) (command runner)
+- [Ollama](https://ollama.ai) (for LLM inference)
+
+See [GETTING_STARTED.md](./GETTING_STARTED.md) for installation instructions.
+
+#### For Docker Deployment
 - Docker & Docker Compose
 - Git
 
-### Installation
+### Local Development Setup
+
+```bash
+# Quick start (automated)
+./SETUP.sh
+
+# Or manual setup
+just setup          # Create venv and install deps
+just env            # Create .env file
+just db-init        # Initialize database
+just dev            # Start development server
+```
+
+**See [GETTING_STARTED.md](./GETTING_STARTED.md) for detailed instructions.**
+
+### Docker Installation
 
 1. **Clone the repository**
 ```bash
@@ -95,7 +130,26 @@ docker exec -it bku-ollama ollama pull llama2
 
 ## Development Setup
 
-### Backend Development
+### Modern Setup (Recommended) - Using uv and just
+
+**Prerequisites**: Python 3.11+, [uv](https://github.com/astral-sh/uv), [just](https://just.systems)
+
+```bash
+# Quick start - setup and run
+just start
+
+# Or step by step:
+just setup          # Setup virtual environment
+just env            # Create .env file
+just db-init        # Initialize database
+just dev            # Start development server
+```
+
+See [LOCAL_DEV.md](./LOCAL_DEV.md) for detailed instructions.
+
+### Traditional Setup
+
+#### Backend Development
 
 ```bash
 cd backend
@@ -105,13 +159,13 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -e ".[dev]"
 
 # Run development server
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend Development
+#### Frontend Development
 
 ```bash
 cd frontend
@@ -360,13 +414,35 @@ Access the Monitoring page in the dashboard for:
 9. **Enable audit logging** and monitoring
 10. **Regular security updates** for all components
 
+## Development Commands
+
+When using the modern dev setup with `just`:
+
+```bash
+just              # List all commands
+just dev          # Start dev server
+just test         # Run tests
+just fmt          # Format code
+just check        # Run all checks
+just clean        # Clean generated files
+```
+
+See the [justfile](./justfile) for all available commands.
+
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
 ## License
 
-[Your License Here]
+MIT License - See LICENSE file for details
 
 ## Support
 
-For issues, questions, or contributions, please open an issue on GitHub.
+- 📖 Documentation: See the docs listed at the top of this README
+- 🐛 Bug Reports: Open an issue on GitHub
+- 💡 Feature Requests: Open an issue on GitHub
+- 💬 Questions: Check [GETTING_STARTED.md](./GETTING_STARTED.md) and [LOCAL_DEV.md](./LOCAL_DEV.md)
 
 ## Credits
 

@@ -6,6 +6,7 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 ENV/
 build/
 develop-eggs/
@@ -72,3 +73,9 @@ htmlcov/
 
 # Alembic
 alembic/versions/*.pyc
+
+# Ruff
+.ruff_cache/
+
+# Mypy
+.mypy_cache/
