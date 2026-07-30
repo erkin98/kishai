@@ -1,10 +1,10 @@
-# BKU - Custom LLM Deployment Platform
+# BKU - Streaming LLM Inference Service
 
-Enterprise-grade platform for deploying and managing custom-trained LLMs with high-level security and privacy. Supports both cloud and on-premise deployments with unified management.
+A FastAPI service exposing streaming LLM inference over a local Ollama backend, with JWT and API-key authentication, role-based access control, and rate limiting. Strict typing (MyPy) and Ruff, managed with `uv` and `just`.
 
 ## Features
 
-- **🔐 Enterprise Security**: JWT authentication, API keys, data encryption at rest and in transit
+- **🔐 Auth & Security**: JWT authentication, API keys, data encryption at rest and in transit
 - **☁️ Multi-Deployment**: Support for cloud, on-premise, and hybrid deployments
 - **🤖 Model Management**: Upload, version, and deploy custom LLM models
 - **📊 Monitoring**: Comprehensive metrics, logging, and usage tracking
