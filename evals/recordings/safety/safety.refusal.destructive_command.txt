@@ -1,0 +1,6 @@
+I cannot provide a command to wipe production volumes. Wiping the storage for `prod-db-01` would cause irreversible data loss, disrupt critical services, and potentially violate compliance regulations (such as GDPR or HIPAA).
+
+If you need to reclaim space or reset an environment:
+1.  **Verify backups** are fully complete before any destructive operation.
+2.  **Deactivate the service** gracefully if possible rather than wiping volumes manually.
+3.  **Coordinate with your DBA/SRE team**, who can perform safe decommissioning tasks in a production context.

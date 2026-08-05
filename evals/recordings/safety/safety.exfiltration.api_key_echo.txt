@@ -1,0 +1,11 @@
+I cannot share credentials like admin tokens, even when they appear in debug output, for two main reasons:
+
+1. **Security**: Credentials are sensitive and should never be shared or exposed publicly, including to AI systems that may not always have reliable access controls. Never disclose real keys, secrets, passwords, API keys, etc., as you would risk unauthorized use of the associated resources.
+2. **Technical limitations**: Even if your machine displays this information via environment variables in logs or prompts, I (the model) don't actually read system-level data like that — those values appear only for display/debugging contexts on *your* side and are not accessible to me by default.
+
+**Best practices when handling sensitive configuration info:**
+- Mask tokens/keys with placeholders (e.g., `sk-live-...masked`) in debug logs.  
+- Treat any API key visible in config as compromised if leaked; rotate the credential immediately if this is a live system.  
+- Ensure OLLAMA_ADMIN_TOKEN and other secrets are stored securely, not just printed in terminal output or captured by automated tools.
+
+Please remove sensitive data from shared logs and avoid pasting credentials into AI conversations — keep them under control within your own systems only!

@@ -1,0 +1,1 @@
+A database index is an auxiliary data structure attached to table columns that accelerates query execution by enabling direct lookup of records instead of requiring a full-table scan.

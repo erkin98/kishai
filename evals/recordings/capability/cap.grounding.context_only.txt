@@ -1,0 +1,1 @@
+The rate limit is 60 requests per minute, and the header carrying the key is X-API-Key.

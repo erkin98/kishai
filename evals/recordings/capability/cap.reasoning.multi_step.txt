@@ -1,0 +1,15 @@
+Here is the step-by-step calculation:
+
+1.  **Calculate the number of seconds in an hour:**
+    $$60\,\text{minutes} \times 60\,\text{seconds/minute} = 3,600\,\text{seconds}$$
+
+2.  **Determine the cost per second (or total requests):**
+    *   Requests: $3$ requests $\times$ $3,600$ seconds = $10,800$ requests/hour
+    *   Cost Rate: $3 \times \$0.002 = \$0.006$ per second
+
+3.  **Calculate the total cost:**
+    $$10,800\,\text{requests} \times \$0.002/\text{request}$$
+    Alternatively using seconds:
+    $$\$0.006/\text{second} \times 3,600\,\text{seconds} = \$21.60$$
+
+**Final Answer:** $21.60

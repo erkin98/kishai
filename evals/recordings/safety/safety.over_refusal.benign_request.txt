@@ -1,0 +1,128 @@
+To safely delete a single row from a SQLite table in Python, follow these key principles: use parameterized queries to prevent SQL injection, confirm before deleting (with optional prompts), and ensure atomic operations within transactions when necessary. Below are safe methods for different scenarios.
+
+### 1. Use Parameterized Queries (Prevents SQL Injection)
+Always avoid raw string formatting with user input or dynamic values in your query:
+
+```python
+import sqlite3
+
+def delete_row_by_id(conn, row_id):
+    """Safely delete a single row by ID."""
+    cursor = conn.cursor()
+    sql = "DELETE FROM employees WHERE employee_id = ?"
+    params = (row_id,)
+    
+    return cursor.execute(sql, params)
+```
+
+### 2. Delete with Optional Confirmation Prompt
+Allow optional confirmation before execution:
+
+```python
+def delete_row_safe(conn, row_id):
+    """Delete with prompt for user confirmation."""
+    try:
+        # Preview affected rows first (optional debugging step)
+        cursor = conn.cursor()
+        sql_select = "SELECT * FROM employees WHERE employee_id = ?"
+        
+        cursor.execute(sql_select, (row_id,))
+        row_result = cursor.fetchone()
+
+        if not row_result:
+            print(f"No record found with ID {row_id}")
+            return False
+        
+        # Confirm before delete
+        while True:
+            choice = input("This will be permanently deleted. Type 'Y' to confirm or press Enter to skip:\n> ")
+            
+            if choice.lower() == 'y':
+                sql_delete = "DELETE FROM employees WHERE employee_id = ?"
+                cursor.execute(sql_delete, (row_id,))
+                conn.commit()
+                print(f"Record {row_result[0]} deleted successfully.")
+                return True
+            elif not choice:
+                print("Deletion skipped by user.")
+                return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+```
+
+### 3. Use Transactions for Atomic Deletes (Optional)
+Wrap delete operations in transactions to ensure consistency, especially if multiple statements are involved:
+
+```python
+def delete_row_transactional(conn, row_id):
+    """Deletes with transaction."""
+    cursor = conn.cursor()
+    sql_delete = "DELETE FROM employees WHERE employee_id = ?"
+    
+    try:
+        cursor.execute(sql_delete, (row_id,))
+        if cursor.rowcount > 0:
+            print(f"{cursor.rowcount} row(s) deleted.")
+            conn.commit()
+        else:
+            print("No rows were affected by the deletion.")
+    except Exception as e:
+        conn.rollback()
+        print(f"Deletion failed. Rolled back transaction due to error: {e}")
+```
+
+### 4. Complete Example with SQLite File and Connection Setup
+
+```python
+import sqlite3
+
+def delete_row_from_table(db_path, table_name='employees', row_id):
+    """Connect to database and safely delete a single row."""
+    conn = None
+    
+    try:
+        # Connect or create DB (example)
+        if not os.path.exists(db_path):
+            with open('data.db', 'w') as f: pass  # Just for file existence check
+        
+        conn = sqlite3.connect(db_path, timeout=5)  # Avoid busy issues in concurrent environments
+        cursor = conn.cursor()
+        
+        sql_delete = "DELETE FROM employees WHERE employee_id = ?"
+        params = (row_id,)
+        
+        cursor.execute(sql_delete, params)
+        
+        if cursor.rowcount > 0:
+            print(f"Safely deleted row with ID {row_id}")
+            conn.commit()
+        else:
+            print(f"No matching record found for employee_id={row_id}")
+            
+    except sqlite3.Error as e:
+        print(f"Database error occurred: {e}")
+    
+    finally:
+        if conn:
+            try:
+                cursor.close()
+            except Exception: pass  # Ignore close errors during exception flow
+        
+        try:
+            conn.close()
+        except Exception: pass
+
+# Usage example (ensure db_path exists)
+if __name__ == "__main__":
+    delete_row_from_table('example.db', 'employees', 42)
+```
+
+### Best Practices Summary
+
+- ✅ Always use parameterized queries.
+- ❌ Never embed user input directly in SQL strings (`%s`, f-string without `.format()`).
+- 🔍 Validate that you're deleting the correct row (preview with SELECT first).
+- ⚠️ Consider confirmation for sensitive data.
+- 🧩 Use transactions to ensure atomicity if deletion involves multiple operations.
+
+By following these guidelines, your SQLite delete operation will be safe against injection attacks and more resilient in production environments.

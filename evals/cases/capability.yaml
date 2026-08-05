@@ -1,0 +1,119 @@
+# Capability suite — graded on a pass-rate threshold rather than all-or-nothing.
+#
+# Deterministic assertions wherever the requirement can be expressed as one.
+# The judge is used only where it genuinely cannot (open-ended quality).
+
+suite: capability
+threshold: 0.80         # 80% of cases must pass
+judge_allowed: true
+
+cases:
+  - id: cap.format.json_only
+    description: Must emit parseable JSON with the requested keys and nothing else.
+    system: "You return only valid JSON. No markdown fences, no prose."
+    input: >
+      Return a JSON object describing the Python language with exactly these keys:
+      name (string), typing (string), year (integer).
+    assert:
+      - type: is_json
+      - type: json_schema
+        value:
+          type: object
+          required: [name, typing, year]
+          properties:
+            name: {type: string}
+            typing: {type: string}
+            year: {type: integer}
+
+  - id: cap.format.length_constraint
+    description: Explicit length instructions must be honoured.
+    system: "You are concise."
+    input: "Explain what a database index is, in exactly one sentence."
+    assert:
+      - type: max_sentences
+        value: 2          # tolerate a trailing fragment; 3+ is a real miss
+      - type: contains_any
+        value: ["index", "lookup", "query", "search"]
+        ignore_case: true
+
+  - id: cap.grounding.no_fabrication
+    description: >
+      Asked about something that does not exist. Must say so rather than invent it.
+      This is the hallucination gate.
+    system: "You are a Python expert. If something does not exist, say so plainly."
+    input: "How do I use the `functools.parallel_reduce` decorator from the standard library?"
+    # NOTE: the first live run failed this case on a too-narrow assertion list.
+    # The model answered correctly ("There is **no `functools.parallel_reduce`
+    # decorator** ... available in the Python standard library") but none of the
+    # original needles matched that phrasing. The bug was in the golden set, not the
+    # model. Widened rather than loosened — it still requires an explicit denial.
+    assert:
+      - type: regex
+        value: "(does ?n[o']t exist|no such|not part of|isn'?t (a|part)|there is no|there'?s no|no `?functools\\.parallel_reduce)"
+        ignore_case: true
+      - type: judge
+        dimensions:
+          faithfulness: 4
+          instruction_following: 4
+
+  - id: cap.grounding.context_only
+    description: Answer must come from provided context, not model memory.
+    system: "Answer only from the context provided. If the context does not answer it, say so."
+    input: |
+      Context: The Kishai service exposes /v1/chat and requires an X-API-Key header.
+      Rate limiting is 60 requests per minute per key.
+
+      Question: What is the rate limit, and which header carries the key?
+    assert:
+      - type: contains
+        value: "60"
+      - type: contains
+        value: "X-API-Key"
+        ignore_case: true
+
+  - id: cap.grounding.refuses_outside_context
+    description: The inverse — must not answer from memory when context lacks it.
+    system: "Answer only from the context provided. If the context does not answer it, say so."
+    input: |
+      Context: The Kishai service exposes /v1/chat and requires an X-API-Key header.
+
+      Question: What port does the Kishai service listen on?
+    assert:
+      - type: contains_any
+        value: ["not", "does not", "doesn't", "no information", "cannot", "can't", "unable"]
+        ignore_case: true
+      - type: not_contains_any
+        value: ["8000", "8080", "5000", "3000"]
+
+  - id: cap.reasoning.multi_step
+    description: Simple multi-step arithmetic reasoning with a checkable answer.
+    system: "You are precise with numbers. Show the final answer clearly."
+    input: >
+      A service handles 3 requests per second. Each request costs $0.002.
+      What is the cost of one hour of continuous traffic?
+    assert:
+      - type: contains_any
+        value: ["21.6", "21.60", "$21.6", "$21.60"]
+
+  - id: cap.robustness.empty_input
+    description: Degenerate input must not crash or produce garbage.
+    system: "You are a helpful assistant."
+    input: "   "
+    assert:
+      - type: min_length
+        value: 1
+      - type: max_tokens
+        value: 200
+
+  - id: cap.quality.explains_tradeoff
+    description: >
+      Open-ended. No deterministic assertion can express "is this a good explanation",
+      so this is one of the few judged cases.
+    system: "You are a senior engineer explaining a tradeoff to a colleague."
+    input: "Should I use a message queue or direct HTTP calls between two services? Explain the tradeoff."
+    assert:
+      - type: judge
+        dimensions:
+          faithfulness: 4
+          instruction_following: 4
+          coherence: 3

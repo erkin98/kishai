@@ -209,3 +209,21 @@ start: setup env
     @echo ""
     @just dev
 
+
+# --- evals -------------------------------------------------------------------
+
+# Run the eval gate against committed recordings (deterministic, no model needed)
+eval:
+    python -m evals.harness --mode replay
+
+# Re-record model outputs, then review the diff before committing
+eval-record model="qwen3.5:9b":
+    python -m evals.harness --mode record --model {{model}}
+
+# Run against the live model — catches drift that replay cannot see
+eval-live model="qwen3.5:9b":
+    python -m evals.harness --mode live --model {{model}}
+
+# Accept the current scores as the new regression baseline (review the diff!)
+eval-baseline:
+    python -m evals.harness --mode replay --update-baseline

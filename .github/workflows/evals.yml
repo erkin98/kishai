@@ -1,0 +1,31 @@
+name: evals
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+  schedule:
+    # Weekly live run against the real model. Replay catches harness/assertion
+    # regressions on every PR; this catches model drift, which replay cannot see.
+    - cron: "0 6 * * 1"
+
+jobs:
+  gate:
+    name: eval gate (replay)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install harness deps
+        # Replay mode needs no model and no app runtime — only the parsers.
+        run: pip install pyyaml jsonschema pydantic pytest
+
+      - name: Run eval gate
+        run: python -m evals.harness --mode replay
+
+      - name: Run suite-hygiene tests
+        run: pytest evals/tests/test_evals.py -q --no-cov -p no:cacheprovider
